@@ -1,5 +1,4 @@
 /* eslint-disable no-restricted-syntax */
-const { log } = require('console');
 const fs = require('fs');
 
 const trebuchetPartOne = () => {
@@ -190,7 +189,6 @@ const gearRationsPartTwo = () => {
   let sum = 0;
   const arr = data.split('\r\n');
   let nums = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
-  let numsSet = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'])
   let rowLen = arr[0].length;
   let columnLen = arr.length - 1;
   
@@ -267,7 +265,6 @@ const gearRationsPartTwo = () => {
   for (let [_, value] of Array.from(map)) {
     if (value.includes('+')) {
       let [first, second] = value.split('+');
-      console.log(first, second);
       sum += (Number(first) * Number(second));
     }
   }
@@ -275,4 +272,79 @@ const gearRationsPartTwo = () => {
   return sum;
 }
 
-console.log(gearRationsPartTwo());
+const scratchCardsPartOne = () => {
+  const data = fs.readFileSync('case.text', 'utf-8');
+  let sum = 0;
+  const arr = data.split('\r\n');
+
+  for (let i = 0; i < arr.length - 1; i++) {
+    let [first, second] = arr[i].slice(arr[i].indexOf(': ') + 2).split(' | ');
+
+    let numbersF = first.split(' ').filter(el => el !== '');
+    let numbersS = second.split(' ').filter(el => el !== '');
+
+    let map = new Map();
+    for (let j = 0; j < numbersF.length; j++) {
+      map.set(numbersF[j], map.get(numbersF[j]) + 1 || 1);
+    }
+
+
+    let counter = 0;
+    for (let j = 0; j < numbersS.length; j++) {
+      if (map.has(numbersS[j]) && map.get(numbersS[j])) {
+        counter++;
+        map.set(numbersS[j], map.get(numbersS[j]) - 1)
+      }
+    }
+
+    console.log(counter);
+
+    if (counter)
+      sum += Math.pow(2, counter - 1);
+
+  }
+
+  return sum;
+}
+
+const scratchCardsPartTwo = () => {
+  const data = fs.readFileSync('case.text', 'utf-8');
+  let sum = 0;
+  const arr = data.split('\r\n');
+
+  let unique = new Map();
+
+  for (let i = arr.length - 2; i >= 0; i--) {
+    let [first, second] = arr[i].slice(arr[i].indexOf(': ') + 2).split(' | ');
+
+    let numbersF = first.split(' ').filter(el => el !== '');
+    let numbersS = second.split(' ').filter(el => el !== '');
+
+    let map = new Map();
+    for (let j = 0; j < numbersF.length; j++) {
+      map.set(numbersF[j], map.get(numbersF[j]) + 1 || 1);
+    }
+
+
+    let counter = 0;
+    for (let j = 0; j < numbersS.length; j++) {
+      if (map.has(numbersS[j]) && map.get(numbersS[j])) {
+        counter++;
+        map.set(numbersS[j], map.get(numbersS[j]) - 1)
+      }
+    }
+
+    let s = 1;
+    for (let j = i + 1; j <= i + counter; j++) {
+      s += unique.get(j);
+    }
+
+    sum += s;
+    unique.set(i, s);
+
+  }
+
+  return sum;
+}
+
+console.log(scratchCardsPartTwo());
