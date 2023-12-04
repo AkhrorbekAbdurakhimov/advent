@@ -1,4 +1,5 @@
 /* eslint-disable no-restricted-syntax */
+const { log } = require('console');
 const fs = require('fs');
 
 const trebuchetPartOne = () => {
@@ -109,11 +110,10 @@ const cubePartOne = () => {
 };
 
 const cubePartTwo = () => {
-  const data = fs.readFileSync('case.text', 'utf-8');
+  const data = fs.readFileSync('input.txt', 'utf-8');
   let sum = 0;
   const arr = data.split('\r\n');
   for (let i = 0; i < arr.length - 1; i += 1) {
-    // let succes = true;
     const obj = {
       red: 0, green: 0, blue: 0,
     };
@@ -131,4 +131,148 @@ const cubePartTwo = () => {
   return sum;
 };
 
-// console.log(cubePartTwo());
+const gearRationsPartOne = () => {
+  const data = fs.readFileSync('input.txt', 'utf-8');
+  let sum = 0;
+  const arr = data.split('\r\n');
+  let nums = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+  let numsSet = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'])
+  let rowLen = arr[0].length;
+  let columnLen = arr.length - 1;
+  
+  let symbols = [...Array(rowLen + 2)].map(e => Array(columnLen + 2).fill(false));
+  
+  arr.unshift('.'.repeat(arr[0].length + 2))
+  for (let i = 1; i < arr.length - 1; i += 1) {
+    arr[i] = '.' + arr[i] + '.';
+  }
+  arr[arr.length - 1] = '.'.repeat(arr[0].length);
+  
+  for (let i = 0; i < arr.length; i++) {
+    for (let j = 0; j < arr[i].length; j++) {
+      if (!numsSet.has(arr[i][j])) {
+        symbols[i][j] = true;
+      }
+    }
+  }
+
+  for (let i = 1; i < arr.length - 1; i++) {
+    let num = '';
+    
+    hasSymbol = false;
+    for (let j = 1; j < arr[i].length - 1; j++) {
+      
+      if ((symbols[i - 1][j - 1] || symbols[i - 1][j] || symbols[i - 1][j + 1] || symbols[i][j-1] || symbols[i][j + 1] || symbols[i + 1][j - 1] || symbols[i + 1][j] || symbols[i + 1][j + 1]) && nums.has(arr[i][j])) {
+        hasSymbol = true;
+      } 
+      
+      if (nums.has(arr[i][j])) {
+        num += arr[i][j];
+      } else {
+        if (hasSymbol && num) {
+          sum += Number(num)
+        }
+        num = '';
+        hasSymbol = false;
+      }
+    }
+    
+    if (num && hasSymbol) {
+      sum += Number(num)
+    }
+  }
+
+  return sum;
+}
+
+const gearRationsPartTwo = () => {
+  const data = fs.readFileSync('input.txt', 'utf-8');
+  let sum = 0;
+  const arr = data.split('\r\n');
+  let nums = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+  let numsSet = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'])
+  let rowLen = arr[0].length;
+  let columnLen = arr.length - 1;
+  
+  let symbols = [...Array(rowLen + 2)].map(e => Array(columnLen + 2).fill(false));
+  
+  arr.unshift('.'.repeat(arr[0].length + 2))
+  for (let i = 1; i < arr.length - 1; i += 1) {
+    arr[i] = '.' + arr[i] + '.';
+  }
+  arr[arr.length - 1] = '.'.repeat(arr[0].length);
+  
+  for (let i = 0; i < arr.length; i++) {
+    for (let j = 0; j < arr[i].length; j++) {
+      if (arr[i][j] === '*') {
+        symbols[i][j] = true;
+      }
+    }
+  }
+  
+  let map = new Map();
+
+  for (let i = 1; i < arr.length - 1; i++) {
+    let num = '';
+    let pattern = '';
+    
+    hasSymbol = false;
+    for (let j = 1; j < arr[i].length - 1; j++) {
+      
+      if (nums.has(arr[i][j])) {
+        if (symbols[i - 1][j - 1]) {
+          hasSymbol = true;
+          pattern = `${i - 1}${j - 1}`
+        } else if (symbols[i - 1][j]) {
+          hasSymbol = true;
+          pattern = `${i - 1}${j}`
+        } else if (symbols[i - 1][j + 1]) {
+          hasSymbol = true;
+          pattern = `${i - 1}${j + 1}`
+        } else if (symbols[i][j - 1]) {
+          hasSymbol = true;
+          pattern = `${i}${j - 1}`
+        } else if (symbols[i][j + 1]) {
+          hasSymbol = true;
+          pattern = `${i}${j + 1}`
+        } else if (symbols[i + 1][j - 1]) {
+          hasSymbol = true;
+          pattern = `${i + 1}${j - 1}`
+        } else if (symbols[i + 1][j]) {
+          hasSymbol = true;
+          pattern = `${i + 1}${j}`
+        } else if (symbols[i + 1][j + 1]) {
+          hasSymbol = true;
+          pattern = `${i + 1}${j + 1}`
+        }
+      }
+      
+      if (nums.has(arr[i][j])) {
+        num += arr[i][j];
+      } else {
+        if (hasSymbol && num) {
+          map.set(pattern, map.get(pattern) ? map.get(pattern) + '+' + num : num)
+        }
+        num = '';
+        hasSymbol = false;
+      }
+    }
+    
+    if (num && hasSymbol) {
+      console.log('extra 0 ', num)
+      map.set(pattern, map.get(pattern) ? map.get(pattern) + '+' + num : num)
+    }
+  }
+  
+  for (let [_, value] of Array.from(map)) {
+    if (value.includes('+')) {
+      let [first, second] = value.split('+');
+      console.log(first, second);
+      sum += (Number(first) * Number(second));
+    }
+  }
+
+  return sum;
+}
+
+console.log(gearRationsPartTwo());
