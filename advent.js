@@ -351,7 +351,6 @@ const fertilizerPartOne = () => {
   const data = fs.readFileSync('case.text', 'utf-8');
   const arr = data.split('\r\n').filter(el => el);
   
-  let res = [];
   let current = {};
   
   let seeds = arr[0].split(' ');
@@ -362,8 +361,11 @@ const fertilizerPartOne = () => {
   
   for (let i = 1; i < arr.length; i++) {
     if (arr[i].includes(':')) {
-      if (Object.entries(current).length) 
-        res.push(current);
+      if (Object.entries(current).length) {
+        for (let [key, value] of Object.entries(seedsObj)) {
+          seedsObj[key] = current[value] ? String(current[value]) : String(value);
+        }
+      } 
       current = {} 
     } else {
       let [first, second, len] = arr[i].split(' ').map(el => Number(el));
@@ -371,13 +373,6 @@ const fertilizerPartOne = () => {
       for (let j = first; j < first + len; j++) {
         current[diff + j] = j;
       }
-    }
-  }
-  
-  for (let i = 0; i < res.length; i++) {
-    for (let [key, value] of Object.entries(seedsObj)) {
-      console.log(key, value, res[i][value]);
-      seedsObj[key] = res[i][value] ? String(res[i][value]) : String(value);
     }
   }
   
