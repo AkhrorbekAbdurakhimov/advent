@@ -347,4 +347,47 @@ const scratchCardsPartTwo = () => {
   return sum;
 }
 
-console.log(scratchCardsPartTwo());
+const fertilizerPartOne = () => {
+  const data = fs.readFileSync('case.text', 'utf-8');
+  const arr = data.split('\r\n').filter(el => el);
+  
+  let res = [];
+  let current = {};
+  
+  let seeds = arr[0].split(' ');
+  let seedsObj = {};
+  for (let i = 1; i < seeds.length; i++) {
+    seedsObj[i] = seeds[i];
+  }
+  
+  for (let i = 1; i < arr.length; i++) {
+    if (arr[i].includes(':')) {
+      if (Object.entries(current).length) 
+        res.push(current);
+      current = {} 
+    } else {
+      let [first, second, len] = arr[i].split(' ').map(el => Number(el));
+      let diff = second - first;
+      for (let j = first; j < first + len; j++) {
+        current[diff + j] = j;
+      }
+    }
+  }
+  
+  for (let i = 0; i < res.length; i++) {
+    for (let [key, value] of Object.entries(seedsObj)) {
+      console.log(key, value, res[i][value]);
+      seedsObj[key] = res[i][value] ? String(res[i][value]) : String(value);
+    }
+  }
+  
+  let min = Number.MAX_SAFE_INTEGER;
+  
+  for (let [key, value] of Object.entries(seedsObj)) {
+    min = Math.min(min, Number(value));
+  }
+
+  return min;
+}
+
+console.log(fertilizerPartOne());
