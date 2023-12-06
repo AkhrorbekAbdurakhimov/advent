@@ -1,5 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 const fs = require('fs');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 const trebuchetPartOne = () => {
   const data = fs.readFileSync('case.text', 'utf-8');
@@ -349,40 +351,110 @@ const scratchCardsPartTwo = () => {
 
 const fertilizerPartOne = () => {
   const data = fs.readFileSync('case.text', 'utf-8');
-  const arr = data.split('\r\n').filter(el => el);
-  
-  let current = {};
-  
+  const arr = data.split(/\r?\n/).filter(el => el);
+
   let seeds = arr[0].split(' ');
-  let seedsObj = {};
-  for (let i = 1; i < seeds.length; i++) {
-    seedsObj[i] = seeds[i];
-  }
-  
-  for (let i = 1; i < arr.length; i++) {
-    if (arr[i].includes(':')) {
-      if (Object.entries(current).length) {
-        for (let [key, value] of Object.entries(seedsObj)) {
-          seedsObj[key] = current[value] ? String(current[value]) : String(value);
+  let min = Number.POSITIVE_INFINITY;
+
+  for (let j = 1; j < seeds.length; j++) {
+    let current = Number(seeds[j]);
+    let start = true;
+    for (let i = 1; i < arr.length; i++) {
+      if (!arr[i].includes(':')) {
+        let [destination, source, range] = arr[i].split(' ').map(el => Number(el));
+        if (start && current >= source && current < (source + range)) {
+          current = current - source + destination;
+          start = false;
         }
-      } 
-      current = {} 
-    } else {
-      let [first, second, len] = arr[i].split(' ').map(el => Number(el));
-      let diff = second - first;
-      for (let j = first; j < first + len; j++) {
-        current[diff + j] = j;
+      } else if (arr[i].includes(':')) {
+        start = true;
       }
     }
-  }
-  
-  let min = Number.MAX_SAFE_INTEGER;
-  
-  for (let [key, value] of Object.entries(seedsObj)) {
-    min = Math.min(min, Number(value));
+    min = Math.min(min, current);
   }
 
   return min;
 }
 
-console.log(fertilizerPartOne());
+function lookup (current, arr) {
+  let start = true;
+  for (let i = 1; i < arr.length; i++) {
+    if (!arr[i].includes(':')) {
+      let [destination, source, range] = arr[i].split(' ').map(el => Number(el));
+      if (start && current >= source && current < (source + range)) {
+        current = current - source + destination;
+        start = false;
+      }
+    } else if (arr[i].includes(':')) {
+      start = true;
+    }
+  }
+  return current;
+}
+
+const fertilizerPartTwo = async () => {
+  const data = fs.readFileSync('case.text', 'utf-8');
+  const arr = data.split(/\r?\n/).filter(el => el);
+
+  let seeds = arr[0].split(' ');
+
+  let min = Number.POSITIVE_INFINITY;
+
+  for (let i = 1; i < seeds.length; i += 2) {
+    let len = Number(seeds[i]) + Number(seeds[i + 1]);
+    let res = [];
+    for (let j = Number(seeds[i]); j < len; j++) {
+      res.push(j)
+    }
+    console.log('next:  -> ', i, res.length);
+    let extra = _.chunk(res, 10000);
+    await Promise.map(extra, async (x) => {
+      await Promise.map(x, (j) => {
+        let current = lookup(j, arr)
+        min = Math.min(min, current);
+      }, { concurrency: 10000 })
+    }, { concurrency: 10000 })
+
+  }
+
+  console.log(min);
+
+  // 15880236
+
+  return min;
+}
+
+const waitForItPartOne = async () => {
+  const data = fs.readFileSync('case.text', 'utf-8');
+  const arr = data.split(/\r?\n/).filter(el => el);
+
+  let timeArr = arr[0].split(' ').filter(el => el).slice(1).map(el => Number(el));
+  let distanceArr = arr[1].split(' ').filter(el => el).slice(1).map(el => Number(el));
+
+  let product = 1;
+  for (let i = 0; i < timeArr.length; i++) {
+    let counter = 0;
+    for (let j = 1; j < timeArr[i]; j++)
+      if (j  * (timeArr[i] - j) > distanceArr[i]) 
+        counter++
+
+    product *= counter;
+  }
+
+  return product;
+}
+
+const waitForItPartTwo = async () => {
+  const data = fs.readFileSync('case.text', 'utf-8');
+  const arr = data.split(/\r?\n/).filter(el => el);
+
+  let timeArr = Number(arr[0].split(':')[1].split(' ').filter(el => el).join(''));
+  let distanceArr = Number(arr[1].split(':')[1].split(' ').filter(el => el).join(''));
+
+  let counter = 0;
+  for (let j = 1; j < timeArr; j++)
+    if (j  * (timeArr - j) > distanceArr) 
+      counter++
+
+  return counter;
+}
