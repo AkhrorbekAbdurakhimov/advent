@@ -350,7 +350,7 @@ const scratchCardsPartTwo = () => {
 }
 
 const fertilizerPartOne = () => {
-  const data = fs.readFileSync('case.text', 'utf-8');
+  const data = fs.readFileSync('input.txt', 'utf-8');
   const arr = data.split(/\r?\n/).filter(el => el);
 
   let seeds = arr[0].split(' ');
@@ -393,7 +393,7 @@ function lookup (current, arr) {
 }
 
 const fertilizerPartTwo = async () => {
-  const data = fs.readFileSync('case.text', 'utf-8');
+  const data = fs.readFileSync('input.txt', 'utf-8');
   const arr = data.split(/\r?\n/).filter(el => el);
 
   let seeds = arr[0].split(' ');
@@ -406,7 +406,6 @@ const fertilizerPartTwo = async () => {
     for (let j = Number(seeds[i]); j < len; j++) {
       res.push(j)
     }
-    console.log('next:  -> ', i, res.length);
     let extra = _.chunk(res, 10000);
     await Promise.map(extra, async (x) => {
       await Promise.map(x, (j) => {
@@ -416,10 +415,6 @@ const fertilizerPartTwo = async () => {
     }, { concurrency: 10000 })
 
   }
-
-  console.log(min);
-
-  // 15880236
 
   return min;
 }
@@ -457,4 +452,106 @@ const waitForItPartTwo = async () => {
       counter++
 
   return counter;
+}
+
+function getType (map) {
+  let arr = Array.from(map);
+  let counter = 0;
+  let len = arr.length;
+  for (let [card, occurance] of arr) {
+    if (occurance === 5)
+      return '1';
+    if (occurance === 4)
+      return '2';
+    if ([2, 3].includes(occurance))
+      counter++;
+  }
+
+  if (counter === 2 && len === 2)
+    return '3';
+  else if (counter === 1 && len === 3)
+    return '4';
+  else if (counter === 2 && len === 3)
+    return '5';
+  else if (counter === 1 && len === 4)
+    return '6';
+  else 
+    return '7';
+}
+
+const camelCardsPartOne = async () => {
+  const data = fs.readFileSync('input.txt', 'utf-8');
+  const arr = data.split(/\r?\n/).filter(el => el);
+
+  let cards = {'A': 10, 'K': 11, 'Q': 12, 'J': 13, 'T': 14, '9': 15, '8': 16, '7': 17, '6': 18, '5': 19, '4': 20, '3': 21, '2': 22}
+
+  let winning = {};
+  let extra = {};
+  let res = [];
+  
+  for (let i = 0; i < arr.length; i++) {
+    let [hand, odd] = arr[i].split(' ');
+    let map = new Map();
+    let w = '';
+    for (let j = 0; j < hand.length; j++) {
+      map.set(hand[j], map.get(hand[j]) + 1 || 1);
+      w += cards[hand[j]]
+    }
+    winning[getType(map) + w] = odd;
+    extra[getType(map) + w] = hand;
+    res.push(getType(map) + w);
+  }
+
+  res.sort((a, b) => b - a);
+
+  let sum = 0;
+  for (let i = 0; i < res.length; i++) {
+    console.log(extra[res[i]])
+    sum += (i + 1) * Number(winning[res[i]])
+  }
+  console.log(sum);
+  return sum;
+}
+
+const camelCardsPartTwo = async () => {
+  const data = fs.readFileSync('input.txt', 'utf-8');
+  const arr = data.split(/\r?\n/).filter(el => el);
+
+  let cards = {'A': 10, 'K': 11, 'Q': 12, 'T': 14, '9': 15, '8': 16, '7': 17, '6': 18, '5': 19, '4': 20, '3': 21, '2': 22, 'J': 23}
+
+  let winning = {};
+  let res = [];
+  
+  for (let i = 0; i < arr.length; i++) {
+    let [hand, odd] = arr[i].split(' ');
+    let map = new Map();
+    let w = '';
+    for (let j = 0; j < hand.length; j++) {
+      map.set(hand[j], map.get(hand[j]) + 1 || 1);
+      w += cards[hand[j]]
+    }
+    let value = map.get('J') ? map.get('J') : 0;
+    if (value) {
+      map.delete('J');
+      let max = 0, maxCharacter = 'A', extra = Array.from(map);
+      for (let [card, occurance] of extra) {
+        if (max < occurance) {
+          max = occurance;
+          maxCharacter = card;
+        }
+      }
+      map.set(maxCharacter, map.get(maxCharacter) + value || value)
+    }
+    winning[getType(map) + w] = odd;
+    res.push(getType(map) + w);
+  }
+
+  res.sort((a, b) => b - a);
+
+  let sum = 0;
+  for (let i = 0; i < res.length; i++) {
+    sum += (i + 1) * Number(winning[res[i]])
+  }
+
+  return sum;
 }
