@@ -555,3 +555,61 @@ const camelCardsPartTwo = async () => {
 
   return sum;
 }
+
+const hauntedWasteLandPartOne = async () => {
+  const data = fs.readFileSync('input.txt', 'utf-8');
+  const arr = data.split(/\r?\n/).filter(el => el);
+
+  let directions = arr[0].split('');
+  let values = arr.slice(1);
+  
+  let obj = {};
+  for (let value of values) {
+    let [first, second] = value.split(' = ');
+    let [left, right] = second.split(', ');
+    obj[`${first}->L`] = left.split('(')[1];
+    obj[`${first}->R`] = right.split(')')[0];
+  }
+  
+  let step = 0;
+  let i = 0;
+  let temp = 'AAA';
+  while (temp[2] !== 'Z') {
+    console.log(directions[step % directions.length]);
+    temp = obj[`${temp}->${directions[step % directions.length]}`];
+    step++
+  }
+  
+  console.log(step);
+
+}
+
+const hauntedWasteLandPartTwo = async () => {
+  const data = fs.readFileSync('input.txt', 'utf-8');
+  const arr = data.split(/\r?\n/).filter(el => el);
+
+  let directions = arr[0].split('');
+  let values = arr.slice(1);
+  
+  let obj = {};
+  for (let value of values) {
+    let [first, second] = value.split(' = ');
+    let [left, right] = second.split(', ');
+    obj[`${first}->L`] = left.split('(')[1];
+    obj[`${first}->R`] = right.split(')')[0];
+  }
+  
+  let step = 0;
+  let i = 0;
+  let temp = 'AAA';
+  while (temp[2] !== 'Z') {
+    console.log(directions[step % directions.length]);
+    temp = obj[`${temp}->${directions[step % directions.length]}`];
+    step++
+  }
+  
+  console.log(step);
+
+}
+
+hauntedWasteLandPartOne()
