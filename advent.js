@@ -612,4 +612,66 @@ const hauntedWasteLandPartTwo = async () => {
 
 }
 
-hauntedWasteLandPartOne()
+let S = 0;
+
+function predict (arr, sum = 0) {
+  if (arr.every(el => el === 0)) {
+    console.log(sum);
+    S += sum;
+    return sum;
+  }
+
+  let next = [];
+  let temp = 0;
+  for (let i = 0; i < arr.length - 1; i++) {
+    next.push(arr[i + 1] - arr[i])
+    if (i === arr.length - 2) {
+      temp = Number(arr[i + 1]);
+    } 
+  }
+
+  predict(next, temp + sum);
+}
+
+function predictTwo (arr, extra = []) {
+  if (arr.every(el => el === 0)) {
+    let res = 0;
+    for (let i = extra.length - 1; i >= 0; i--) {
+      res = Number(extra[i]) - res;
+    }
+    S += res;
+    console.log(res);
+    return;
+  }
+
+  let next = [];
+  for (let i = 0; i < arr.length - 1; i++) {
+    next.push(arr[i + 1] - arr[i])
+    if (i === 0) {
+      extra.push(Number(arr[i]));
+    } 
+  }
+
+  predictTwo(next, extra);
+}
+
+const miragePartOne = async () => {
+  const data = fs.readFileSync('input.txt', 'utf-8');
+  const arr = data.split(/\r?\n/).filter(el => el);
+
+  for (let line of arr) {
+    predict(line.split(' '))
+  }
+}
+
+const miragePartTwo = async () => {
+  const data = fs.readFileSync('input.txt', 'utf-8');
+  const arr = data.split(/\r?\n/).filter(el => el);
+
+  for (let line of arr) {
+    predictTwo(line.split(' '))
+  }
+}
+
+miragePartTwo();
+console.log(S);
