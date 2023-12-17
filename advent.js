@@ -2,6 +2,7 @@
 const fs = require('fs');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const { log, dir } = require('console');
 
 const trebuchetPartOne = () => {
   const data = fs.readFileSync('case.text', 'utf-8');
@@ -825,3 +826,338 @@ const cosmicExpansionPartTwo = () => {
 }
 
 cosmicExpansionPartTwo()
+// let length = [];
+
+// const look = (i, j, matrix, direction, len) => {
+//   if (matrix[i][j] === '.') 
+//     return;
+  
+//   length = len;
+  
+//   if (matrix[i][j] === '-' && direction === 'right')
+//     look(i, j + 1, matrix, 'right', len + 1)
+  
+//   if (matrix[i][j] === '-' && direction === 'left')
+//     look(i, j - 1, matrix, 'left', len + 1)
+  
+//   if (matrix[i][j] === '|' && direction === 'down')
+//     look(i + 1, j, matrix, 'down', len + 1)
+  
+//   if (matrix[i][j] === '|' && direction === 'up')
+//     look(i - 1, j, matrix, 'up', len + 1)
+  
+//   if (matrix[i][j] === 'L' && direction === 'down')
+//     look(i, j + 1, matrix, 'right', len + 1)
+  
+//   if (matrix[i][j] === 'L' && direction === 'left')
+//     look(i - 1, j, matrix, 'up', len + 1)
+    
+//   if (matrix[i][j] === 'J' && direction === 'right')
+//     look(i - 1, j, matrix, 'up', len + 1)
+  
+//   if (matrix[i][j] === 'J' && direction === 'down')
+//     look(i, j - 1, matrix, 'left', len + 1)
+  
+//   if (matrix[i][j] === '7' && direction === 'right')
+//     look(i + 1, j, matrix, 'down', len + 1)
+  
+//   if (matrix[i][j] === '7' && direction === 'up')
+//     look(i, j - 1, matrix, 'left', len + 1)
+  
+//   if (matrix[i][j] === 'F' && direction === 'up')
+//     look(i, j + 1, matrix, 'right', len + 1)
+  
+//   if (matrix[i][j] === 'F' && direction === 'left')
+//     look(i + 1, j, matrix, 'down', len + 1)
+  
+//   return;
+// }
+
+const pipeMazePartOne = () => {
+  const data = fs.readFileSync('input.txt', 'utf-8');
+  const arr = data.split(/\r?\n/).filter(el => el);
+  
+  let matrix = [];
+  matrix.push(new Array(arr.length + 2).fill('.'));
+  for (let line of arr) {
+    let newArr = line.split('');
+    newArr.push('.');
+    newArr.unshift('.');
+    matrix.push(newArr)
+  }
+  matrix.push(new Array(arr.length + 2).fill('.'));
+  
+  let startX = 0, startY = 0;
+  for (let i = 0; i < matrix.length; i++) {
+    for (let j = 0; j < matrix[0].length; j++) {
+      if (matrix[i][j] === 'S') {
+        startX = i;
+        startY = j;
+      }
+    }
+  }
+  
+  let i = startX + 1;
+  let j = startY;
+  let direction = 'down';
+  let len = 1;
+  
+  while (true) {
+    if (matrix[i][j] === '-' && direction === 'right') {
+      j++;
+      direction = 'right';
+      len++
+    }
+  
+    if (matrix[i][j] === '-' && direction === 'left') {
+      j--;
+      direction = 'left';
+      len++
+    }
+    
+    if (matrix[i][j] === '|' && direction === 'down') {
+      i++;
+      direction = 'down';
+      len++
+    }
+    
+    if (matrix[i][j] === '|' && direction === 'up') {
+      i--;
+      direction = 'up';
+      len++
+    }
+    
+    if (matrix[i][j] === 'L' && direction === 'down') {
+      j++;
+      direction = 'right';
+      len++
+    }
+    
+    if (matrix[i][j] === 'L' && direction === 'left') {
+      i--;
+      direction = 'up';
+      len++;
+    }
+      
+    if (matrix[i][j] === 'J' && direction === 'right') {
+      i--;
+      direction = 'up';
+      len++
+    }
+    
+    if (matrix[i][j] === 'J' && direction === 'down') {
+      j--;
+      direction = 'left';
+      len++;
+    }
+    
+    if (matrix[i][j] === '7' && direction === 'right') {
+      i++;
+      direction = 'down';
+      len++;
+    }
+    
+    if (matrix[i][j] === '7' && direction === 'up') {
+      j--;
+      direction = 'left';
+      len++;
+    }
+    
+    if (matrix[i][j] === 'F' && direction === 'up') {
+      j++;
+      direction = 'right';
+      len++
+    }
+    
+    if (matrix[i][j] === 'F' && direction === 'left') {
+      i++;
+      direction = 'down'
+      len++
+    }
+  }
+  
+}
+
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+
+function replaceAll(str, find, replace) {
+  return str.replace(new RegExp(escapeRegExp(find), 'g'), replace);
+}
+
+const pipeMazePartTwo = () => {
+  const data = fs.readFileSync('input.txt', 'utf-8');
+  const arr = data.split(/\r?\n/).filter(el => el);
+  
+  let matrix = [];
+  matrix.push(new Array(arr.length + 2).fill('.'));
+  for (let line of arr) {
+    let newArr = line.split('');
+    newArr.push('.');
+    newArr.unshift('.');
+    matrix.push(newArr)
+  }
+  matrix.push(new Array(arr.length + 2).fill('.'));
+  
+  let newM = [...new Array(matrix.length)].map(el => new Array(matrix[0].length).fill('o'))
+  
+  let startX = 0, startY = 0;
+  for (let i = 0; i < matrix.length; i++) {
+    for (let j = 0; j < matrix[0].length; j++) {
+      if (matrix[i][j] === 'S') {
+        startX = i;
+        startY = j;
+      }
+    }
+  }
+  
+  let i = startX + 1;
+  let j = startY;
+  let direction = 'down';
+  let len = 1;
+  
+  while (true) {
+    if (matrix[i][j] === 'S') {
+      break;
+    }
+    
+    
+    if (matrix[i][j] === '-' && direction === 'right') {
+      newM[i][j] = 'x'
+      j++;
+      direction = 'right';
+      len++
+    }
+  
+    if (matrix[i][j] === '-' && direction === 'left') {
+      newM[i][j] = 'x'
+      j--;
+      direction = 'left';
+      len++
+    }
+    
+    if (matrix[i][j] === '|' && direction === 'down') {
+      newM[i][j] = 'x'
+      i++;
+      direction = 'down';
+      len++
+    }
+    
+    if (matrix[i][j] === '|' && direction === 'up') {
+      newM[i][j] = 'x'
+      i--;
+      direction = 'up';
+      len++
+    }
+    
+    if (matrix[i][j] === 'L' && direction === 'down') {
+      newM[i][j] = 'x'
+      j++;
+      direction = 'right';
+      len++
+    }
+    
+    if (matrix[i][j] === 'L' && direction === 'left') {
+      newM[i][j] = 'x'
+      i--;
+      direction = 'up';
+      len++;
+    }
+      
+    if (matrix[i][j] === 'J' && direction === 'right') {
+      newM[i][j] = 'x'
+      i--;
+      direction = 'up';
+      len++
+    }
+    
+    if (matrix[i][j] === 'J' && direction === 'down') {
+      newM[i][j] = 'x'
+      j--;
+      direction = 'left';
+      len++;
+    }
+    
+    if (matrix[i][j] === '7' && direction === 'right') {
+      newM[i][j] = 'x'
+      i++;
+      direction = 'down';
+      len++;
+    }
+    
+    if (matrix[i][j] === '7' && direction === 'up') {
+      newM[i][j] = 'x'
+      j--;
+      direction = 'left';
+      len++;
+    }
+    
+    if (matrix[i][j] === 'F' && direction === 'up') {
+      newM[i][j] = 'x'
+      j++;
+      direction = 'right';
+      len++
+    }
+    
+    if (matrix[i][j] === 'F' && direction === 'left') {
+      newM[i][j] = 'x'
+      i++;
+      direction = 'down'
+      len++
+    }    
+  }
+  
+  console.log(newM);
+  
+  for (let j = 0; j < newM[0].length; j++) {
+    let str = '';
+    for (let i = 0; i < newM.length; i++) {
+      str += newM[i][j];
+    }
+    
+    for (let k = 1; k <= newM.length; k++) {
+      let src = 'x' + 'o'.repeat(k) + 'x';
+      let dest = 'x' + '1'.repeat(k) + 'x';
+      if (str.includes(src)) {
+        str = replaceAll(str, src, dest)
+      }
+    }
+    
+    for (let k = 0; k < str.length; k++) {
+      newM[k][j] = str[k];
+    }
+  }
+  
+  
+  for (let i = 0; i < newM[0].length; i++) {
+    let str = '';
+    for (let j = 0; j < newM.length; j++) {
+      str += newM[i][j];
+    }
+    
+    for (let k = 1; k <= newM[0].length; k++) {
+      let src = 'x' + '1'.repeat(k) + 'x';
+      let dest = 'x' + '2'.repeat(k) + 'x';
+      if (str.includes(src)) {
+        str = replaceAll(str, src, dest)
+      }
+    }
+    
+    for (let k = 0; k < str.length; k++) {
+      newM[i][k] = str[k];
+    }
+  }
+  
+  let counter = 0;
+  for (let i = 0; i < newM.length; i++) {
+    for (let j = 0; j < newM[0].length; j++) {
+      if (newM[i][j] === '2') {
+        counter++;
+      }
+    }
+  }
+  console.log(counter);
+}
+
+pipeMazePartTwo()
