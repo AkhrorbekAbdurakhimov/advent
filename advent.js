@@ -673,5 +673,155 @@ const miragePartTwo = async () => {
   }
 }
 
-miragePartTwo();
-console.log(S);
+const cosmicExpansionPartOne = () => {
+  const data = fs.readFileSync('input.txt', 'utf-8');
+  const arr = data.split(/\r?\n/).filter(el => el);
+
+  let tempArr = [];
+  times = 2;
+
+  for (let i = 0; i < arr.length; i++) {
+    let hasUniverse = false;
+    for (let j = 0; j < arr[0].length; j++) {
+      if (arr[i][j] === '#') {
+        hasUniverse = true;
+        break;
+      }
+    }
+    if (!hasUniverse) {
+      for (let i = 0; i < times; i++) {
+        tempArr.push(new Array(arr[0].length).fill('.'))
+      }
+    } else {
+      tempArr.push(arr[i].split(''))
+    }
+  }
+
+  let matrix = new Array(tempArr.length);
+  for (let i = 0; i < tempArr.length; i++) {
+    matrix[i] = tempArr[i].slice();
+  }
+
+  let counter = 0, temp = new Array(times - 1).fill('.');
+  for (let j = 0; j < tempArr[0].length; j++) {
+    let hasUniverse = false;
+    for (let i = 0; i < tempArr.length; i++) {
+      if (tempArr[i][j] === '#') {
+        hasUniverse = true;
+        break;
+      }
+    }
+    if (!hasUniverse) {
+      for (let i = 0; i < tempArr.length; i++) {
+        matrix[i].splice(j + counter, 0, ...temp)
+      }
+      counter += (times - 1);
+    }
+  }
+
+  let order = 1, map = {};
+  for (let i = 0; i < matrix.length; i++) {
+    for (let j = 0; j < matrix[0].length; j++) {
+      if (matrix[i][j] === '#') {
+        matrix[i][j] = order;
+        map[order] = `${i}-${j}`
+        order++
+      }
+    }
+  }
+
+  let sum = 0;
+  for (let i = 1; i < order; i++) {
+    for (let j = i + 1; j < order; j++) {
+      let [x1, y1] = map[i].split('-');
+      let [x2, y2] = map[j].split('-');
+      sum += (Math.abs(x1 - x2) + Math.abs(y1 - y2))
+    }
+  }
+
+  console.log(sum);
+
+  for (let i = 0; i < matrix.length; i++) {
+    matrix[i] = matrix[i].join('');
+  }
+
+  fs.writeFileSync('res.text', matrix.join('\n'), 'utf-8');
+
+  return sum;
+
+}
+
+const cosmicExpansionPartTwo = () => {
+  const data = fs.readFileSync('input.txt', 'utf-8');
+  const arr = data.split(/\r?\n/).filter(el => el);
+
+  let matrix = [], x = [], y = [];
+  const times = 2;
+
+  for (let i = 0; i < arr.length; i++) {
+    matrix.push(arr[i].split(''))
+    let hasUniverse = false;
+    for (let j = 0; j < arr[0].length; j++) {
+      if (arr[i][j] === '#') {
+        hasUniverse = true;
+        break;
+      }
+    }
+    if (!hasUniverse)
+      x.push(i);
+  }
+
+  for (let j = 0; j < matrix[0].length; j++) {
+    let hasUniverse = false;
+    for (let i = 0; i < matrix.length; i++) {
+      if (matrix[i][j] === '#') {
+        hasUniverse = true;
+        break;
+      }
+    }
+    if (!hasUniverse) {
+      y.push(j)
+    }
+  }
+
+  let order = 1, map = {};
+  for (let i = 0; i < matrix.length; i++) {
+    for (let j = 0; j < matrix[0].length; j++) {
+      if (matrix[i][j] === '#') {
+        matrix[i][j] = order;
+        map[order] = `${i}-${j}`
+        order++
+      }
+    }
+  }
+
+  let sum = 0;
+  for (let i = 1; i < order; i++) {
+    for (let j = i + 1; j < order; j++) {
+      let [x1, y1] = map[i].split('-');
+      let [x2, y2] = map[j].split('-');
+      let extraX = 0;
+      let extraY = 0;
+
+      let filteredX = x.filter(el => el > Number(y1) && el < Number(y2));
+      let filteredY = y.filter(el => el > Number(x1) && el < Number(x2));
+
+      console.log(x1, x2, x);
+      console.log(y1, y2, y);
+      sum += (Math.abs(x1 - x2) + Math.abs(y1 - y2));
+    }
+  }
+
+  console.log(sum);
+
+  for (let i = 0; i < matrix.length; i++) {
+    matrix[i] = matrix[i].join('');
+  }
+
+  fs.writeFileSync('res.text', matrix.join('\n'), 'utf-8');
+
+  return sum;
+
+}
+
+cosmicExpansionPartTwo()
